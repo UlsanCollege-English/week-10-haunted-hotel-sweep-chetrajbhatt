@@ -6,21 +6,12 @@ visited sets, BFS, and DFS.
 
 from collections import deque
 
-
 Graph = dict[str, list[str]]
 
 
 def get_neighbors(graph: Graph, area: str) -> list[str]:
-    """Return neighboring areas, or [] if the area is missing.
-
-    Example:
-        >>> hotel = {"Lobby": ["Hallway"], "Hallway": ["Lobby"]}
-        >>> get_neighbors(hotel, "Lobby")
-        ['Hallway']
-        >>> get_neighbors(hotel, "Tower")
-        []
-    """
-    raise NotImplementedError
+    """Return neighboring areas, or [] if the area is missing."""
+    return graph.get(area, [])
 
 
 def has_path(graph: Graph, start: str, target: str) -> bool:
@@ -29,7 +20,23 @@ def has_path(graph: Graph, start: str, target: str) -> bool:
     Return False if either area is missing or if target cannot be reached.
     If start == target and the area exists, return True.
     """
-    raise NotImplementedError
+    if start not in graph or target not in graph:
+        return False
+
+    visited = {start}
+    queue = deque([start])
+
+    while queue:
+        current = queue.popleft()
+        if current == target:
+            return True
+
+        for neighbor in graph.get(current, []):
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+
+    return False
 
 
 def bfs_order(graph: Graph, start: str) -> list[str]:
@@ -39,7 +46,23 @@ def bfs_order(graph: Graph, start: str) -> list[str]:
     Use the neighbor order exactly as given in the graph.
     Return [] if start is missing.
     """
-    raise NotImplementedError
+    if start not in graph:
+        return []
+
+    order = []
+    visited = {start}
+    queue = deque([start])
+
+    while queue:
+        current = queue.popleft()
+        order.append(current)
+
+        for neighbor in graph.get(current, []):
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+
+    return order
 
 
 def dfs_order(graph: Graph, start: str) -> list[str]:
@@ -51,7 +74,25 @@ def dfs_order(graph: Graph, start: str) -> list[str]:
     helps the final traversal follow the original neighbor order.
     Return [] if start is missing.
     """
-    raise NotImplementedError
+    if start not in graph:
+        return []
+
+    order = []
+    visited = set()
+    stack = [start]
+
+    while stack:
+        current = stack.pop()
+
+        if current not in visited:
+            visited.add(current)
+            order.append(current)
+
+            for neighbor in reversed(graph.get(current, [])):
+                if neighbor not in visited:
+                    stack.append(neighbor)
+
+    return order
 
 
 def count_reachable_areas(graph: Graph, start: str) -> int:
@@ -59,4 +100,7 @@ def count_reachable_areas(graph: Graph, start: str) -> int:
 
     Stretch function. Return 0 if start is missing.
     """
-    raise NotImplementedError
+    if start not in graph:
+        return 0
+
+    return len(bfs_order(graph, start))
